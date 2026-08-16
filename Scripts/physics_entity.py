@@ -47,13 +47,8 @@ class PhysicsEntity:
 
         self.pos[1] += frame_movement[1]
         entity_rect = self.rect()
-        print(entity_rect.bottomleft, entity_rect.bottomright)
         for rect in tilemap.physics_rect_around(self.pos):
-            print(rect.topleft, rect.topright)
-            print()
             if entity_rect.colliderect(rect):
-                print("collision")
-                print()
                 if frame_movement[1] > 0:
                     self.collisions["down"] = True
                     entity_rect.bottom = rect.top
@@ -80,8 +75,8 @@ class PhysicsEntity:
 
         img = pygame.transform.flip(self.animation.img(), self.flip, False)
 
-        render_x = self.pos[0] - offset[0] + self.anim_offset[0]
-        render_y = self.pos[1] - offset[1] + self.anim_offset[1]
+        render_x = int(round(self.pos[0] - offset[0] + self.anim_offset[0]))
+        render_y = int(self.pos[1] - offset[1] + self.anim_offset[1])
 
         mask = pygame.mask.from_surface(img)
         silhouette = mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))

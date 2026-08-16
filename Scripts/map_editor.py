@@ -10,9 +10,9 @@ class Editor:
         pygame.init()
         pygame.display.set_caption("Map Editor")
         self.screen = pygame.display.set_mode(
-            (640, 360), pygame.FULLSCREEN | pygame.SCALED
+            (640 / 2, 360 / 2), pygame.FULLSCREEN | pygame.SCALED
         )
-        self.display = pygame.Surface((640, 360))
+        self.display = pygame.Surface((640 / 2, 360 / 2))
         self.clock = pygame.time.Clock()
 
         self.movement = [False, False, False, False]
@@ -21,6 +21,8 @@ class Editor:
             "metal": load_images("tiles/metal"),
             "diode_metal": load_images("tiles/diode_metal"),
             "large_decor": load_images("tiles/large_decor"),
+            "spawners": load_images("tiles/spawners"),
+            "npcs": load_images("tiles/npcs"),
         }
 
         self.tilemap = Tilemap(self, tile_size=16)
@@ -84,7 +86,7 @@ class Editor:
                 tile_loc = str(tile_pos[0]) + ";" + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
                     del self.tilemap.tilemap[tile_loc]
-                for tile in self.tilemap.offgid_tiles.copy():
+                for tile in self.tilemap.offgrid_tiles.copy():
                     tile_img = self.assets[tile["type"]][tile["variant"]]
                     tile_r = pygame.Rect(
                         tile["pos"][0] - self.scroll[0],
@@ -93,7 +95,7 @@ class Editor:
                         tile_img.get_height(),
                     )
                     if tile_r.collidepoint(mpos):
-                        self.tilemap.offgid_tiles.remove(tile)
+                        self.tilemap.offgrid_tiles.remove(tile)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -103,7 +105,7 @@ class Editor:
                     if event.button == 1:
                         self.clicking = True
                         if not self.ongrid:
-                            self.tilemap.offgid_tiles.append(
+                            self.tilemap.offgrid_tiles.append(
                                 {
                                     "type": self.tile_list[self.tile_group],
                                     "variant": self.tile_variant,

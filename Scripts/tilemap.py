@@ -29,7 +29,7 @@ class Tilemap:
         self.game = game
         self.tile_size = tile_size
         self.tilemap = {}
-        self.offgid_tiles = []
+        self.offgrid_tiles = []
 
     def extract(self, id_pairs, keep=False):
         matches = []
@@ -70,7 +70,7 @@ class Tilemap:
             {
                 "tilemap": self.tilemap,
                 "tile_size": self.tile_size,
-                "offgrid": self.offgid_tiles,
+                "offgrid": self.offgrid_tiles,
             },
             map_file,
         )
@@ -83,7 +83,7 @@ class Tilemap:
 
         self.tilemap = map_data["tilemap"]
         self.tile_size = map_data["tile_size"]
-        self.offgid_tiles = map_data["offgrid"]
+        self.offgrid_tiles = map_data["offgrid"]
 
     def solid_check(self, pos):
         tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size))
@@ -106,7 +106,7 @@ class Tilemap:
         return rects
 
     def render(self, surf, offset=(0, 0)):
-        for tile in self.offgid_tiles:
+        for tile in self.offgrid_tiles:
             surf.blit(
                 self.game.assets[tile["type"]][tile["variant"]],
                 (tile["pos"][0] - offset[0], tile["pos"][1] - offset[1]),
