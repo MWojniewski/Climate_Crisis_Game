@@ -16,6 +16,9 @@ class NPC:
 
         self.active_npc = True
         self.in_x_range = False
+        self.x_area = []
+        self.is_talking = False
+        self.current_page = 0
 
         npc_file = open("data/npcs/" + self.name + ".json", "r")
         npc_data = json.load(npc_file)
@@ -25,7 +28,6 @@ class NPC:
         self.state = 0
         self.interaction_text = npc_data["interaction_text"]
         self.text = npc_data["text"]
-        self.x_area = []
         for pos_data in npc_data["x_area"]:
             self.x_area.append(
                 pygame.Rect(
@@ -54,10 +56,22 @@ class NPC:
         )
 
     def interaction(self):
-        self.state = (self.state + 1) % len(self.states_list)
-        self.animation = self.game.assets[
-            "npcs/" + self.name + "/" + self.states_list[self.state]
-        ].copy()
+
+        if not self.is_talking:
+            if self.state + 1 < len(self.states_list):
+                self.state += 1
+                self.animation = self.game.assets[
+                    "npcs/" + self.name + "/" + self.states_list[self.state]
+                ].copy()
+            if len(self.text[self.state]) > 0:
+                self.is_talking = True
+                self.current_page = 0
+        else:
+            self.current_page += 1
+            if self.current_page >= len(self.text[self.state]):
+                self.is_talking = False
+                self.current_page = 0
+                self.interaction()
 
     def draw_interaction_box(self, surf):
 
@@ -89,3 +103,8 @@ class NPC:
 
         text_x = icon_x + x_key_img.get_width() + gap
         surf.blit(text_surf, (text_x, text_y))
+
+    def get_current_texts(self):
+        if self.is_talking and self.current_page < len(self.text[self.state]):
+            return self.text[self.state][self.current_page]
+        return [""]

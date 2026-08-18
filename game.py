@@ -20,6 +20,8 @@ class Game:
             (self.GAME_WIDTH, self.GAME_HEIGHT), pygame.FULLSCREEN | pygame.SCALED
         )
 
+        # self.screen = pygame.display.set_mode((self.GAME_WIDTH, self.GAME_HEIGHT))
+
         self.display = pygame.Surface(
             (self.GAME_WIDTH, self.GAME_HEIGHT), pygame.SRCALPHA
         )
@@ -76,6 +78,33 @@ class Game:
 
         self.scroll = [0, 0]
         self.transition = -45
+
+    def draw_dialog_box(self, texts_str, surf):
+        padding = 5
+        box_rect = pygame.Rect(5, 5, self.GAME_WIDTH - 10, self.GAME_HEIGHT // 2 - 15)
+
+        dialog_surf = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
+        dialog_surf.fill((10, 10, 10, 200))
+
+        pygame.draw.rect(
+            dialog_surf, (0, 0, 0), (0, 0, box_rect.width, box_rect.height), 2
+        )
+        for index, text in enumerate(texts_str):
+            text_surface = self.interaction_font.render(text, False, (255, 255, 255))
+            dialog_surf.blit(text_surface, (padding, padding + 11 * index))
+
+        prompt_surf = self.interaction_font.render(
+            "[X] Dalej...", True, (180, 180, 180)
+        )
+        dialog_surf.blit(
+            prompt_surf,
+            (
+                box_rect.width - prompt_surf.get_width() - padding // 2,
+                box_rect.height - prompt_surf.get_height() - padding // 2,
+            ),
+        )
+
+        surf.blit(dialog_surf, (box_rect.x, box_rect.y))
 
     def run(self):
         while True:
@@ -137,7 +166,6 @@ class Game:
                         self.player.rect(), self.player.pos, self.player.flip
                     ):
                         self.npc_in_range = index
-                        npc.draw_interaction_box(self.display_2)
                         break
 
             for event in pygame.event.get():
@@ -157,13 +185,21 @@ class Game:
                             pass
                             # self.sfx["jump"].play()
                     if event.key == pygame.K_x and not self.npc_in_range == -1:
-                        self.lvl_npc[self.npc_in_range].interaction(self.display_2)
-
+                        self.lvl_npc[self.npc_in_range].interaction()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
+
+            if self.npc_in_range != -1:
+                if self.lvl_npc[self.npc_in_range].is_talking:
+                    self.draw_dialog_box(
+                        self.lvl_npc[self.npc_in_range].get_current_texts(),
+                        self.display_2,
+                    )
+                else:
+                    self.lvl_npc[self.npc_in_range].draw_interaction_box(self.display_2)
 
             if self.transition:
                 transition_surf = pygame.Surface(self.display_2.get_size())
